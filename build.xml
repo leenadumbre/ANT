@@ -1,0 +1,46 @@
+<project name="Sample Ant build" basedir="." default="execute">
+	
+	<property file="TestClasses.properties"/>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+			  <classpath>
+			    <pathelement location="${ant.contrib.path}"/>
+			  </classpath>
+	</taskdef>
+	
+
+	<path id="classpath">
+		<pathelement location="${module.output.classess}" />
+		<fileset dir="${selenium.jars.folder}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- Delete directories  -->
+	<target name="delete-dir">
+		<delete dir="${module.output.classess}" />
+		<delete dir="${report-dir}" />
+	</target>
+	
+	<!-- Creating directories -->
+	<target name="create" depends="delete-dir">
+		<mkdir dir="${module.output.classess}" />
+		<mkdir dir="${report-dir}" />
+	</target>
+	
+	<!-- Compile the java code from ${source.files} into ${module.output.classess} -->
+	<target name="compile" depends="create">
+		<javac srcdir="${source.files}" classpathref="classpath" includeAntRuntime="No" destdir="${module.output.classess}" />
+		<echo> /* Compiled Directory Classes */ </echo>
+	</target>
+	
+	<!-- Runs the file and generates Reporting report for TestNG-->
+	<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="classpath" />
+	
+	<target name="execute" depends="compile">
+		<mkdir dir="${report-dir}" />
+		<testng outputdir="${report-dir}" classpathref="classpath" useDefaultListeners="true">
+			<xmlfileset dir="${xml.fileset}" includes="testng.xml" />
+		</testng>
+	</target>
+</project>
